@@ -1,0 +1,523 @@
+# Portal Scanner Configuration
+# Used by /career-ops scan to discover new offers automatically.
+#
+# Strategy (3 levels):
+#   1. Playwright → careers_url of each company (real-time, reliable)
+#   2. Greenhouse API → structured JSON (fast, Greenhouse-only)
+#   3. WebSearch with site: filters (broad discovery, may be stale)
+#
+# IMPORTANT: Each company in tracked_companies MUST have careers_url.
+#   Prefer the BRANDED company careers URL whenever available; use ATS-hosted URL only as fallback.
+#   ✅ https://careers.mastercard.com   ⚠️ https://mastercard.wd1.myworkdayjobs.com (fallback only)
+#   ✅ https://openai.com/careers       ⚠️ https://job-boards.greenhouse.io/openai (fallback only)
+#   Exception: ATS-hosted careers_url is acceptable when no branded careers page exists.
+#   Using raw ATS URLs when a branded page exists can cause false 410 errors (job ID mismatch).
+#
+# HOW TO CUSTOMIZE:
+#   1. Copy this file to portals.yml in the project root
+#   2. Edit title_filter.positive with YOUR target role keywords
+#   3. Add/remove companies in tracked_companies
+#   4. Adjust search_queries for your preferred job boards
+#   5. Set enabled: false on companies you don't care about
+
+# -- Title filter --
+# The scanner uses these keywords to decide if a title is relevant.
+# At least 1 positive must match AND 0 negatives must match (case-insensitive).
+
+title_filter:
+  positive:
+    # [CUSTOMIZE] Add keywords matching YOUR target roles
+    - "Analista de Dados"
+    - "Business Intelligence"
+    - "Cientista de Dados"
+    - "Data Analyst"
+    - "BI Analyst"
+    - "Data Scientist"
+    - "Business Intelligence Analyst"
+    - "Data Engineer"
+    - "ETL"
+    - "SQL"
+    - "Python"
+    - "Power BI"
+    - "Tableau"
+    - "Machine Learning"
+    - "ML"
+    - "Analytics"
+    - "Analista BI"
+    - "Engenheiro de Dados"
+    - "Especialista em Dados"
+    - "Analista de BI"
+    - "Data Analytics"
+    - "Big Data"
+    - "Analista de BI Jr"
+    - "Analista de Analytics"
+    - "Data Associate"
+    - "Associate"
+  negative:
+    # [CUSTOMIZE] Add keywords for roles you want to exclude
+    - "Senior"
+    - "Staff"
+    - "Principal"
+    - "Lead"
+    - "Director"
+    - "Head"
+    - "Manager"
+    - "Intern"
+    - "Estagiário"
+    - "Trainee"
+    - "AI"
+    - "Artificial Intelligence"
+    - "LLM"
+    - "GenAI"
+    - "NLP"
+    - "Deep Learning"
+    - "Neural Networks"
+  seniority_boost:
+    # These prefixes add relevance but are not required
+    - "Júnior"
+    - "Junior"
+    - "Pleno"
+    - "Mid"
+
+# -- Search queries --
+# Each query triggers a WebSearch. Use site: to filter by portal.
+# The scanner extracts title, URL, and company from results.
+
+search_queries:
+  # -- Ashby --
+  - name: Ashby — Data Analyst
+    query: 'site:jobs.ashbyhq.com "Data Analyst" OR "Business Intelligence" OR "Data Scientist" remote'
+    enabled: true
+
+  - name: Ashby — BI Analyst
+    query: 'site:jobs.ashbyhq.com "Business Intelligence Analyst" OR "BI Analyst" OR "Analytics" remote'
+    enabled: true
+
+  - name: Ashby — Data Scientist
+    query: 'site:jobs.ashbyhq.com "Data Scientist" OR "Machine Learning" OR "ML Engineer" remote'
+    enabled: true
+
+  # -- Greenhouse --
+  - name: Greenhouse — Data Roles
+    query: 'site:boards.greenhouse.io OR site:job-boards.greenhouse.io "Data Analyst" OR "Business Intelligence" OR "Data Scientist" remote'
+    enabled: true
+
+  # -- Workable --
+  - name: Workable — Data Roles
+    query: 'site:apply.workable.com "Data Analyst" OR "Business Intelligence" OR "Data Scientist" remote'
+    enabled: true
+
+  # -- Brazilian job boards --
+  - name: Gupy — Brasil Data
+    query: 'site:gupy.io "Analista de Dados" OR "Business Intelligence" OR "Cientista de Dados" Brasil'
+    enabled: true
+
+  - name: Vagas.com — Brasil Data
+    query: 'site:vagas.com.br "Analista de Dados" OR "Business Intelligence" OR "Cientista de Dados" remoto'
+    enabled: true
+
+  - name: Catho — Brasil Data
+    query: 'site:catho.com.br "Analista de Dados" OR "Business Intelligence" OR "Cientista de Dados" remoto'
+    enabled: true
+
+  - name: LinkedIn — Brasil Data
+    query: 'site:linkedin.com/jobs "Analista de Dados" OR "Business Intelligence" OR "Cientista de Dados" Brasil'
+    enabled: true
+
+  - name: Indeed — Brasil Data
+    query: 'site:br.indeed.com "Analista de Dados" OR "Business Intelligence" OR "Cientista de Dados" remoto'
+    enabled: true
+
+  - name: Geek Hunter — Data Roles
+    query: 'site:geekhunter.com.br "Analista de Dados" OR "Business Intelligence" OR "Data Analyst" OR "Data Associate"'
+    enabled: true
+
+  - name: Revelo — Data Roles
+    query: 'site:revelo.com.br "Analista de Dados" OR "Business Intelligence" OR "Data Analyst" OR "Data Associate" OR "Data Engineer"'
+    enabled: true
+
+  - name: Programathor — Data Roles
+    query: 'site:programathor.com.br "Analista de Dados" OR "Business Intelligence" OR "Data Analyst" OR "Data Associate"'
+    enabled: true
+
+  # -- International: No Visa Required (Contractor/B2B/Remote Latin America) --
+  - name: Relocate.me — Data Roles
+    query: 'site:relocate.me "Data Analyst" OR "Business Intelligence" OR "Data Associate"'
+    enabled: true
+
+  - name: VanHack — Data Roles
+    query: 'site:vanhack.com "Data Analyst" OR "Business Intelligence" OR "Data Associate"'
+    enabled: true
+
+  - name: Landing.jobs — Data Roles
+    query: 'site:landing.jobs "Data Analyst" OR "Business Intelligence" OR "Data Engineer"'
+    enabled: true
+
+  - name: FashionJobs.com — Data Roles
+    query: 'site:fashionjobs.com "Data Analyst" OR "Business Intelligence" OR "Analytics"'
+    enabled: true
+
+  - name: Inditex Careers — Data Roles
+    query: 'site:inditex.com/careers "Data Analyst" OR "Business Intelligence" OR "Analytics"'
+    enabled: true
+
+  # -- International: Contractor/B2B/Remote Latin America Search --
+  - name: Upwork — Data Contractor
+    query: 'site:upwork.com "Data Analyst" OR "Business Intelligence" contractor Brazil OR "Latin America"'
+    enabled: true
+
+  - name: Toptal — Data Contractor
+    query: 'site:toptal.com "Data Analyst" OR "Business Intelligence" OR "Data Associate"'
+    enabled: true
+
+  - name: We Work Remotely — Remote Brazil/LATAM
+    query: 'site:weworkremotely.com "Data Analyst" OR "Business Intelligence" Brazil OR "Latin America"'
+    enabled: true
+
+  - name: Remote.co — Remote LATAM
+    query: 'site:remote.co "Data Analyst" OR "Business Intelligence" remote'
+    enabled: true
+
+  # -- Recruitment Firms / Headhunters --
+  - name: Michael Page — Data Roles
+    query: 'site:michaelpage.com.br "Analista de Dados" OR "Business Intelligence" OR "Data Analyst"'
+    enabled: true
+
+  - name: Robert Half — Data Roles
+    query: 'site:roberthalf.com "Data Analyst" OR "Business Intelligence" OR "Data Associate"'
+    enabled: true
+
+  - name: Cia de Talentos — Trainee/Entry
+    query: 'site:ciadetalentos.com.br "Trainee" OR "Estagiário" data OR analytics'
+    enabled: true
+
+  - name: Eureca — Trainee/Entry
+    query: 'site:eureca.com.br "Trainee" OR "Estagiário" data OR analytics'
+    enabled: true
+
+# -- Tracked companies --
+# Companies whose career pages are checked directly.
+# scan_method: playwright (default), websearch, greenhouse_api
+# For Greenhouse companies, add api: field for faster structured JSON access.
+#
+# LOCATION RESTRICTIONS:
+#
+# **Remote Positions (Brazil):** All considered (100% remote)
+#
+# **Brazil On-site/Hybrid:** Only DF-based (Distrito Federal)
+#
+# **International Strategy:**
+#   Visa Sponsorship NOT Required (recommended for Jr level):
+#   - Contractor roles ("Contractor", "1099", "C2C")
+#   - B2B/PJ arrangements (independent contractor)
+#   - "Remote Brazil" or "Remote Latin America" positions
+#   - Digital nomad visa-friendly countries (Portugal, Spain, Mexico)
+#
+#   Visa Sponsorship POSSIBLE (research-driven):
+#   - Portugal: Visto Tech / Visto de Residência (tech companies actively sponsor)
+#   - Germany: Opportunity Card (Chancenkarte) / Blue Card (tech shortage)
+#   - Canada: Global Talent Stream (accelerated visa for IT roles)
+#   - Search terms: "visa sponsorship", "relocation package", "visa support"
+#
+# **Key International Portals for Non-Visa Roles:**
+#   - Relocate.me: Relocation + visa packages (pre-filtered)
+#   - VanHack: Strong for Canada/Europe, Brazilian-focused
+#   - Landing.jobs: Europe specialist (Portugal, Germany)
+#   - FashionJobs.com: Retail/luxury sector globally
+#   - Inditex Careers: Zara, Massimo Dutti, Pull & Bear (global)
+#   - Michael Page / Robert Half: Executive recruitment (tech & data)
+#   - Cia de Talentos / Eureca: Brazil trainee & entry programs
+
+tracked_companies:
+
+  # -- Brazilian companies --
+  - name: Itaú
+    careers_url: https://carreiras.itau.com.br
+    scan_method: websearch
+    scan_query: 'site:carreiras.itau.com.br "Analista de Dados" OR "Business Intelligence" OR "Data Scientist"'
+    enabled: true
+
+  - name: Banco do Brasil
+    careers_url: https://www.bb.com.br/pbb/pagina-inicial/carreiras
+    scan_method: websearch
+    scan_query: 'site:bb.com.br/carreiras "Analista de Dados" OR "Business Intelligence"'
+    enabled: true
+
+  - name: Magazine Luiza
+    careers_url: https://carreiras.magazineluiza.com.br
+    scan_method: websearch
+    scan_query: 'site:carreiras.magazineluiza.com.br "Data Analyst" OR "Business Intelligence" OR "Data Scientist"'
+    enabled: true
+
+  - name: Nubank
+    careers_url: https://nubank.com.br/carreiras
+    scan_method: websearch
+    scan_query: 'site:nubank.com.br/carreiras "Data Analyst" OR "Business Intelligence" OR "Data Scientist"'
+    enabled: true
+
+  - name: iFood
+    careers_url: https://carreiras.ifood.com.br
+    scan_method: websearch
+    scan_query: 'site:carreiras.ifood.com.br "Data Analyst" OR "Business Intelligence" OR "Data Scientist"'
+    enabled: true
+
+  - name: Stone
+    careers_url: https://stone.co/carreiras
+    scan_method: websearch
+    scan_query: 'site:stone.co/carreiras "Data Analyst" OR "Business Intelligence" OR "Data Scientist"'
+    enabled: true
+
+  - name: Mercado Livre
+    careers_url: https://careers.mercadolivre.com
+    scan_method: websearch
+    scan_query: 'site:careers.mercadolivre.com "Data Analyst" OR "Business Intelligence" OR "Data Scientist"'
+    enabled: true
+
+  - name: C6 Bank
+    careers_url: https://c6bank.gupy.io
+    scan_method: websearch
+    scan_query: 'site:c6bank.gupy.io "Analista de Dados" OR "Business Intelligence" OR "Data Scientist"'
+    enabled: true
+
+  - name: PicPay
+    careers_url: https://picpay.gupy.io
+    scan_method: websearch
+    scan_query: 'site:picpay.gupy.io "Analista de Dados" OR "Business Intelligence" OR "Data Scientist"'
+    enabled: true
+
+  - name: PagSeguro
+    careers_url: https://pagseguro.gupy.io
+    scan_method: websearch
+    scan_query: 'site:pagseguro.gupy.io "Analista de Dados" OR "Business Intelligence" OR "Data Scientist"'
+    enabled: true
+  - name: Google
+    careers_url: https://careers.google.com
+    scan_method: websearch
+    scan_query: 'site:careers.google.com "Data Analyst" OR "Business Intelligence" OR "Data Scientist" Brazil OR remote'
+    enabled: true
+
+  - name: Amazon
+    careers_url: https://www.amazon.jobs
+    scan_method: websearch
+    scan_query: 'site:amazon.jobs "Data Analyst" OR "Business Intelligence" OR "Data Scientist" Brazil OR remote'
+    enabled: true
+
+  - name: Meta
+    careers_url: https://metacareers.com
+    scan_method: websearch
+    scan_query: 'site:metacareers.com "Data Analyst" OR "Business Intelligence" OR "Data Scientist" Brazil OR remote'
+    enabled: true
+
+  - name: Microsoft
+    careers_url: https://careers.microsoft.com
+    scan_method: websearch
+    scan_query: 'site:careers.microsoft.com "Data Analyst" OR "Business Intelligence" OR "Data Scientist" Brazil OR remote'
+    enabled: true
+
+  # -- Brazilian Financial/Tech Companies --
+  - name: Itaú Unibanco
+    careers_url: https://carreiras.itau.com.br
+    scan_method: websearch
+    scan_query: 'site:carreiras.itau.com.br "Analista de Dados" OR "Business Intelligence"'
+    enabled: true
+
+  - name: Sicredi
+    careers_url: https://www.sicredi.com.br/carreiras
+    scan_method: websearch
+    scan_query: 'site:sicredi.com.br "Analista de Dados" OR "Business Intelligence"'
+    enabled: true
+
+  - name: Bradesco
+    careers_url: https://www.bradesco.com.br/carreiras
+    scan_method: websearch
+    scan_query: 'site:bradesco.com.br "Analista de Dados" OR "Business Intelligence"'
+    enabled: true
+
+  - name: Ambev
+    careers_url: https://carreiras.ambev.com.br
+    scan_method: websearch
+    scan_query: 'site:carreiras.ambev.com.br "Data Analyst" OR "Business Intelligence" OR "Data Scientist"'
+    enabled: true
+
+  - name: Grupo OLX
+    careers_url: https://carreiras.olx.com.br
+    scan_method: websearch
+    scan_query: 'site:carreiras.olx.com.br "Data Analyst" OR "Business Intelligence" OR "Data Scientist"'
+    enabled: true
+
+  - name: Hotmart
+    careers_url: https://careers.hotmart.com
+    scan_method: websearch
+    scan_query: 'site:careers.hotmart.com "Data Analyst" OR "Business Intelligence" OR "Data Associate"'
+    enabled: true
+
+  - name: QuintoAndar
+    careers_url: https://quintoandar.com.br/vagas
+    scan_method: websearch
+    scan_query: 'site:quintoandar.com.br "Analista de Dados" OR "Business Intelligence"'
+    enabled: true
+
+  - name: Loggi
+    careers_url: https://loggi.com/trabalhe-conosco
+    scan_method: websearch
+    scan_query: 'site:loggi.com "Analista de Dados" OR "Business Intelligence" OR "Data Analyst"'
+    enabled: true
+
+  - name: Indicium
+    careers_url: https://indicium.tech/careers
+    scan_method: websearch
+    scan_query: 'site:indicium.tech "Data Analyst" OR "Business Intelligence" OR "Data Scientist"'
+    enabled: true
+
+  - name: Keyrus
+    careers_url: https://www.keyrus.com.br/carreiras
+    scan_method: websearch
+    scan_query: 'site:keyrus.com.br "Analista de Dados" OR "Business Intelligence" OR "Data Scientist"'
+    enabled: true
+
+  - name: Stefanini
+    careers_url: https://carreiras.stefanini.com
+    scan_method: websearch
+    scan_query: 'site:stefanini.com "Analista de Dados" OR "Business Intelligence" OR "Data Analyst"'
+    enabled: true
+
+  - name: beAnalytic
+    careers_url: https://beanalytic.com.br
+    scan_method: websearch
+    scan_query: 'site:beanalytic.com.br "Data Analyst" OR "Business Intelligence"'
+    enabled: true
+
+  - name: LuizaLabs (Magazine Luiza)
+    careers_url: https://careers.luizalabs.com
+    scan_method: websearch
+    scan_query: 'site:careers.luizalabs.com "Data Analyst" OR "Business Intelligence" OR "Data Engineer"'
+    enabled: true
+
+  # -- Consulting & Enterprise Companies --
+  - name: Accenture
+    careers_url: https://www.accenture.com/br-pt/careers
+    scan_method: websearch
+    scan_query: 'site:accenture.com "Analista de Dados" OR "Business Intelligence" OR "Data Analyst"'
+    enabled: true
+
+  - name: Deloitte
+    careers_url: https://www2.deloitte.com/br/pt/careers.html
+    scan_method: websearch
+    scan_query: 'site:deloitte.com "Analista de Dados" OR "Business Intelligence" OR "Data Analyst"'
+    enabled: true
+
+  - name: NTT DATA
+    careers_url: https://nttdata-emply.csod.com
+    scan_method: websearch
+    scan_query: 'site:nttdata.com "Data Analyst" OR "Business Intelligence" OR "Data Associate"'
+    enabled: true
+
+  - name: CI&T
+    careers_url: https://ciandt.gupy.io
+    scan_method: websearch
+    scan_query: 'site:ciandt.gupy.io "Analista de Dados" OR "Data Analyst" OR "Business Intelligence"'
+    enabled: true
+
+  - name: Globant
+    careers_url: https://globant.com/careers
+    scan_method: websearch
+    scan_query: 'site:globant.com "Data Analyst" OR "Business Intelligence" OR "Data Associate"'
+    enabled: true
+
+  - name: Encora
+    careers_url: https://encora.com/careers
+    scan_method: websearch
+    scan_query: 'site:encora.com "Data Analyst" OR "Business Intelligence" OR "Data Associate"'
+    enabled: true
+
+  - name: Avenue Code
+    careers_url: https://www.avenuecode.com/careers
+    scan_method: websearch
+    scan_query: 'site:avenuecode.com "Data Analyst" OR "Business Intelligence"'
+    enabled: true
+
+  - name: Turing
+    careers_url: https://www.turing.com/jobs
+    scan_method: websearch
+    scan_query: 'site:turing.com "Data Analyst" OR "Business Intelligence" OR "Data Associate"'
+    enabled: true
+
+  - name: CloudWalk (InfinitePay)
+    careers_url: https://cloudwalk.io/careers
+    scan_method: websearch
+    scan_query: 'site:cloudwalk.io "Data Analyst" OR "Business Intelligence" OR "Data Engineer"'
+    enabled: true
+
+  # -- Remote Job Boards & Job Aggregators --
+  - name: Wellfound (formerly AngelList)
+    careers_url: https://wellfound.com/jobs
+    scan_method: websearch
+    scan_query: 'site:wellfound.com "Data Analyst" OR "Business Intelligence" OR "Data Associate" remote'
+    enabled: true
+
+  - name: We Work Remotely (WWR)
+    careers_url: https://weworkremotely.com/categories/remote-data-jobs
+    scan_method: websearch
+    scan_query: 'site:weworkremotely.com "Data Analyst" OR "Business Intelligence" OR "Data Associate"'
+    enabled: true
+
+  - name: Remote OK
+    careers_url: https://remoteok.com/
+    scan_method: websearch
+    scan_query: 'site:remoteok.com "Data Analyst" OR "Business Intelligence" OR "Data Associate"'
+    enabled: true
+
+  - name: Ottotto
+    careers_url: https://www.ottotto.com.br
+    scan_method: websearch
+    scan_query: 'site:ottotto.com.br "Analista de Dados" OR "Data Analyst" OR "Business Intelligence"'
+    enabled: true
+
+  - name: Remotar
+    careers_url: https://www.remotar.com.br
+    scan_method: websearch
+    scan_query: 'site:remotar.com.br "Analista de Dados" OR "Data Analyst" OR "Business Intelligence"'
+    enabled: true
+
+  - name: Startupi
+    careers_url: https://www.startupi.com.br
+    scan_method: websearch
+    scan_query: 'site:startupi.com.br "Analista de Dados" OR "Data Analyst" OR "Business Intelligence"'
+    enabled: true
+
+  - name: Coodesh
+    careers_url: https://coodesh.com
+    scan_method: websearch
+    scan_query: 'site:coodesh.com "Analista de Dados" OR "Data Analyst" OR "Business Intelligence" OR "Data Associate"'
+    enabled: true
+
+  - name: DataJobs
+    careers_url: https://datajobs.com.br
+    scan_method: websearch
+    scan_query: 'site:datajobs.com.br "Analista de Dados" OR "Data Analyst" OR "Business Intelligence"'
+    enabled: true
+
+  - name: Outer Join
+    careers_url: https://outerjoin.com.br
+    scan_method: websearch
+    scan_query: 'site:outerjoin.com.br "Analista de Dados" OR "Data Analyst" OR "Business Intelligence"'
+    enabled: true
+
+  # -- International: Tech & Automotive --
+  - name: Dell
+    careers_url: https://jobs.dell.com
+    scan_method: websearch
+    scan_query: 'site:jobs.dell.com "Data Analyst" OR "Business Intelligence" OR "Data Associate"'
+    enabled: true
+
+  - name: BMW Group Careers
+    careers_url: https://www.bmw-career.com/en
+    scan_method: websearch
+    scan_query: 'site:bmw-career.com "Data Analyst" OR "Business Intelligence" OR "Analytics" Germany OR Brazil OR "Latin America"'
+    enabled: true
+
+  - name: Audi Jobs
+    careers_url: https://www.audi.com/en/careers.html
+    scan_method: websearch
+    scan_query: 'site:audi.com "Data Analyst" OR "Business Intelligence" OR "Analytics" Germany OR Brazil OR "Latin America"'
+    enabled: true
