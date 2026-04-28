@@ -1,0 +1,65 @@
+name: Career-Ops Scheduled Scan
+
+# Trigger: Executar a cada 2 dias às 8h da manhã (UTC-3 = 11h UTC)
+on:
+  schedule:
+    # Cron: 11 * * * * = 8h da manhã, a cada 2 dias
+    # Formato: minuto hora dia-do-mês mês dia-da-semana
+    - cron: '0 11 */2 * *'
+  
+  # Permite disparar manualmente (workflow_dispatch)
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📚 Instalar dependências
+        run: npm install
+
+      - name: 🔍 Executar scan
+        run: node scan.mjs
+        continue-on-error: true
+
+      - name: 📝 Verificar mudanças
+        id: verify
+        run: |
+          if git diff --quiet data/pipeline.md; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "✅ Nenhuma nova vaga encontrada"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "🎉 Novas vagas encontradas!"
+          fi
+
+      - name: 💾 Fazer commit de novas vagas
+        if: steps.verify.outputs.changed == 'true'
+        run: |
+          git config --global user.email "github-actions@career-ops.local"
+          git config --global user.name "Career-Ops Bot"
+          git add data/pipeline.md data/scan-history.tsv batch/tracker-additions/ 2>/dev/null || true
+          git commit -m "🤖 Scan automático: novas vagas encontradas" || true
+
+      - name: 🚀 Fazer push
+        if: steps.verify.outputs.changed == 'true'
+        run: |
+          git push origin main
+
+      - name: 📧 Notificar resultado
+        if: always()
+        run: |
+          echo "Scan executado em: $(date)"
+          echo "Status: ${{ job.status }}"
+          echo ""
+          echo "Acesse: https://github.com/santifer/career-ops/actions"
