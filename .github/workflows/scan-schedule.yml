@@ -1,5 +1,8 @@
 name: Career-Ops Scheduled Scan
 
+permissions:
+  contents: write
+
 # Trigger: Executar a cada 2 dias às 8h da manhã (UTC-3 = 11h UTC)
 on:
   schedule:
@@ -19,6 +22,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
 
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
@@ -53,8 +57,13 @@ jobs:
 
       - name: 🚀 Fazer push
         if: steps.verify.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git push origin main
+          git remote -v
+          git branch
+          git status
+          git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} HEAD:main
 
       - name: 📧 Notificar resultado
         if: always()
@@ -62,4 +71,4 @@ jobs:
           echo "Scan executado em: $(date)"
           echo "Status: ${{ job.status }}"
           echo ""
-          echo "Acesse: https://github.com/santifer/career-ops/actions"
+          echo "Acesse: https://github.com/DanylloENL/career-ops/actions"
